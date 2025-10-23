@@ -1,0 +1,32 @@
+name: CI Seguridad Aplicaciones
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci || npm install
+
+      - name: ESLint (SAST ligero)
+        run: npx eslint . || echo "ESLint warnings logged"
+
+      - name: Audit deps (high+)
+        run: npm audit --audit-level=high || true
+
+      - name: Done
+        run: echo "CI finalizado ✅"
